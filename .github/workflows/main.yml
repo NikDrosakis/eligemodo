@@ -1,0 +1,56 @@
+name: Trivial CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '14'
+
+    - name: Install Dependencies
+      run: |
+        npm install -g expo-cli
+        npm install
+
+    - name: Build Expo Project
+      run: |
+        expo build:android --non-interactive
+        expo build:ios --non-interactive
+
+    - name: Archive Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-artifacts
+        path: |
+          android/app/build/outputs
+          ios/build/Build/Products
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Download Artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: build-artifacts
+
+    - name: Deploy to App Store or Play Store
+      run: |
+        # Add your deployment steps here
+        # For example, deploying to App Store or Play Store
+
